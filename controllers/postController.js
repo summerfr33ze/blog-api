@@ -4,10 +4,13 @@ const Post = require("../models/post")
 const Comment = require("../models/comment")
 
 
-
+exports.index = (req, res) => {
+    res.redirect("/posts")
+}
 
 exports.posts_get = async (req,res) => {
-    const Posts = await Post.find({}, "title date")
+    console.log("hi")
+    const Posts = await Post.find({}, "title message date user")
     .sort({date: -1})
     .populate("user")
     .exec()
@@ -26,7 +29,7 @@ exports.current_post_get = async (req,res) => {
 
 
 
-exports.comment_create_post = body("comment").trim().isLength({min: 5}).escape(),
+exports.comment_create_post = [body("comment").trim().isLength({min: 5}).escape(),
 
 async (req, res) => {
     const errors = validationResult(req)
@@ -47,33 +50,37 @@ async (req, res) => {
     else(res.json(errors.array()))
 
 }
-
+]
     
 
 
 
 
-exports.post_create_post = body("message").trim().isLength({min: 30}).escape(),
+exports.post_create_post = [body("message").trim().isLength({min: 30}).escape(),
 body("title").trim().isLength({min: 5, max: 100}).escape(),
 
 async (req,res) => {
+    console.log(req.body)
     const errors = validationResult(req)
 
     if(errors.isEmpty()){
         const post = new Post({
             title: req.body.title,
-            message: req.body.post,
-            user: req.user,
+            message: req.body.message,
+            // user: req.user,
             date: new Date(),
         })
 
         await post.save()
-    }
-    else(res.json(errors.array()))
-}
 
-exports.post_update_post = body("message").trim().isLength({min: 30}).escape(),
-body("title").trim().isLength({min: 5, max: 100}).escape()
+        res.send("yo")
+    }
+     else(res.json(errors))
+}
+]
+
+exports.post_update_post = [body("message").trim().isLength({min: 30}).escape(),
+body("title").trim().isLength({min: 5, max: 100}).escape(),
 
 async (req,res) => {
     const errors = validationResult(req)
@@ -89,7 +96,7 @@ async (req,res) => {
     }
     else(res.json(errors.array()))
 }
-
+]
 
 
 
